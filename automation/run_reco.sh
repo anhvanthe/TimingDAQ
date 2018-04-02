@@ -1,6 +1,8 @@
 #!/bin/bash
 
 pixel=true
+Force=false
+
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
@@ -9,6 +11,11 @@ key="$1"
 case $key in
     -np|--no_pixel)
     pixel=false
+    shift # past argument
+    shift # past value
+    ;;
+    -f|--force)
+    Force=true
     shift # past argument
     shift # past value
     ;;
@@ -24,6 +31,9 @@ esac
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
+
+echo $Force
+
 if [ "${pixel}" == true ]
 then
     echo "[INFO] Running reconstruction WITH pixels"
@@ -34,9 +44,9 @@ fi
 numberlo=$1
 numberhi=$2
 
-data_dir=/eos/uscms/store/user/cmstestbeam/BTL/March2018/OTSDAQ/CMSTiming
-output_name=RECO/V3/DataCMSVMETiming
-code_dir=/uscms_data/d2/sxie/releases/CMSSW_9_0_2/src/TimingDAQ
+data_dir=/tmp/cmorgoth/
+output_name=RECO/dev_cp1/DataCMSVMETiming
+code_dir=/uscms_data/d2/sxie/releases/CMSSW_9_0_2/src/scratch/TimingDAQ
 config_file=$code_dir/config/VME_FNALTestbeam_180329_v3_fast.config
 
 for((runNum=${numberlo}; runNum<=${numberhi}; runNum++))
@@ -65,6 +75,7 @@ for((runNum=${numberlo}; runNum<=${numberhi}; runNum++))
   echo "Recostructing VME and merging pixel data"
 
   output_file=$data_dir/${output_name}_Run${runNum}.root
+  #if [ -e $output_file ] && [ "${Force}" == false ]
   if [ -e $output_file ]
   then
     echo "Run$runNum already present in output directory"

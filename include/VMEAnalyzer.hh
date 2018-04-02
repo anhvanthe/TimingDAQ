@@ -5,12 +5,14 @@
 #define VME_SAMPLES 1024
 
 #include "DatAnalyzer.hh"
-
+#include <assert.h>
 // This is the class that should be used for parsing and analyzing
 // VME data files in .dat format.
 
 class VMEAnalyzer : public DatAnalyzer {
   public:
+  TFile *pixel_file = nullptr;
+  TFile *file;
     struct FTBFPixelEvent {
         double xSlope;
         double ySlope;
@@ -22,8 +24,17 @@ class VMEAnalyzer : public DatAnalyzer {
         Long64_t timestamp;
     };
 
-    VMEAnalyzer() : DatAnalyzer(VME_CHANNELS, VME_TIMES, VME_SAMPLES, 4096, 1.) {}
-
+  VMEAnalyzer() : DatAnalyzer(VME_CHANNELS, VME_TIMES, VME_SAMPLES, 4096, 1.) {};
+  VMEAnalyzer(int argc, char** argv);
+  ~VMEAnalyzer(){
+    file->cd();
+    //tree->Print();
+    tree->Write();
+    file->Write();
+    file->Close(); 
+    assert(false);
+    this->~DatAnalyzer();
+  };
     void GetCommandLineArgs(int argc, char **argv);
 
     void LoadCalibration();
@@ -51,9 +62,9 @@ class VMEAnalyzer : public DatAnalyzer {
     unsigned short raw[VME_CHANNELS][VME_SAMPLES]; // ADC counts
 
     // Pixel events variables
-    FTBFPixelEvent* pixel_event;
-    TFile *pixel_file = nullptr;
-    TTree *pixel_tree = nullptr;
+  FTBFPixelEvent* pixel_event;
+  //TFile *pixel_file = nullptr;
+  //  TTree *pixel_tree = nullptr;
 
     unsigned long int idx_px_tree = 0;
     unsigned long int entries_px_tree = 0;

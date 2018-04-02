@@ -30,7 +30,9 @@
 // This is the base class for .dat --> .root converters.
 
 class DatAnalyzer {
-    public:
+  public:
+  //TFile *pixel_file = nullptr;
+  //TFile *file;
         DatAnalyzer(int numChannels, int numTimes, int numSamples, int res, float scale);
         ~DatAnalyzer();
         int getNumChannels() { return NUM_CHANNELS; }
@@ -97,8 +99,10 @@ class DatAnalyzer {
         unsigned int i_evt = 0;
 
         // Output root file
-        TFile *file;
-        TTree *tree;
+  //TFile *file;
+  //TTree *pixel_file = nullptr;
+  TTree *tree;
+  TTree *pixel_tree;
 
         std::map<TString, float*> var;
         std::vector<TString> var_names = {

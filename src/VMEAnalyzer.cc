@@ -2,8 +2,20 @@
 
 using namespace std;
 
-void VMEAnalyzer::GetCommandLineArgs(int argc, char **argv){
+
+VMEAnalyzer::VMEAnalyzer(int argc, char** argv) : DatAnalyzer(VME_CHANNELS, VME_TIMES, VME_SAMPLES, 4096, 1.) 
+{
   DatAnalyzer::GetCommandLineArgs(argc, argv);
+
+  //gDirectory->Print();
+  file = new TFile("test.root", "RECREATE");
+  //file->Print();
+  tree = new TTree("pulse", "Digitized waveforms");
+  //file->Print();
+  //file = new TFile("test.root", "RECREATE");
+  //file->Print();
+  //tree = new TTree("pulse", "Digitized waveforms");
+  //file->Print();
 
   pixel_input_file_path = ParseCommandLine( argc, argv, "pixel_input_file" );
   if (pixel_input_file_path == ""){
@@ -11,19 +23,69 @@ void VMEAnalyzer::GetCommandLineArgs(int argc, char **argv){
   }
   else {
     cout << "Pixel input file: " << pixel_input_file_path.Data() << endl;
-    pixel_file = new TFile( pixel_input_file_path.Data(),"READ");
+    pixel_file = TFile::Open( pixel_input_file_path.Data(),"READ");
+    //file->Print();
     if (!pixel_file) {std::cout << "[ERROR]: Pixel file not found" << std::endl; exit(0);}
     TString tree_name = pixel_file->GetListOfKeys()->At(0)->GetName(); //Only works if it the tree is the first key
     pixel_tree = (TTree*)pixel_file->Get(tree_name);
+    //file->Print();
     if (!pixel_tree) {cout << "[ERROR]: Pixel Tree not found\n"; exit(0);}
     entries_px_tree = pixel_tree->GetEntries();
   }
+
+  //file = new TFile("test.root", "RECREATE");
+  //file->Print();
+  //tree = new TTree("pulse", "Digitized waveforms");
+  //file->Print();
 
   calibration_file_path = ParseCommandLine( argc, argv, "calibration_file" );
   if(calibration_file_path == ""){
     calibration_file_path = "calibration/v1740";
   }
   cout << "Calibration file: " << calibration_file_path.Data() << "_bd1_group_[0-3]_[offset-dV].txt" << endl;
+}
+
+void VMEAnalyzer::GetCommandLineArgs(int argc, char **argv){
+  /*
+  DatAnalyzer::GetCommandLineArgs(argc, argv);
+
+  //gDirectory->Print();
+  file = new TFile("test.root", "RECREATE");
+  //file->Print();
+  tree = new TTree("pulse", "Digitized waveforms");
+  //file->Print();
+  //file = new TFile("test.root", "RECREATE");
+  //file->Print();
+  //tree = new TTree("pulse", "Digitized waveforms");
+  //file->Print();
+
+  pixel_input_file_path = ParseCommandLine( argc, argv, "pixel_input_file" );
+  if (pixel_input_file_path == ""){
+    cout << "Pixel input file not provided" << endl;
+  }
+  else {
+    cout << "Pixel input file: " << pixel_input_file_path.Data() << endl;
+    pixel_file = TFile::Open( pixel_input_file_path.Data(),"READ");
+    //file->Print();
+    if (!pixel_file) {std::cout << "[ERROR]: Pixel file not found" << std::endl; exit(0);}
+    TString tree_name = pixel_file->GetListOfKeys()->At(0)->GetName(); //Only works if it the tree is the first key
+    pixel_tree = (TTree*)pixel_file->Get(tree_name);
+    //file->Print();
+    if (!pixel_tree) {cout << "[ERROR]: Pixel Tree not found\n"; exit(0);}
+    entries_px_tree = pixel_tree->GetEntries();
+  }
+  
+  //file = new TFile("test.root", "RECREATE");
+  //file->Print();
+  //tree = new TTree("pulse", "Digitized waveforms");
+  //file->Print();
+  
+  calibration_file_path = ParseCommandLine( argc, argv, "calibration_file" );
+  if(calibration_file_path == ""){
+    calibration_file_path = "calibration/v1740";
+  }
+  cout << "Calibration file: " << calibration_file_path.Data() << "_bd1_group_[0-3]_[offset-dV].txt" << endl;
+  */
 }
 
 void VMEAnalyzer::LoadCalibration(){
@@ -69,6 +131,7 @@ void VMEAnalyzer::LoadCalibration(){
 }
 
 void VMEAnalyzer::InitLoop(){
+  std::cout << "VMA INIT" << std::endl;
   DatAnalyzer::InitLoop();
   if(save_raw){
     tree->Branch("tc", tc, "tc[4]/s");
@@ -77,6 +140,7 @@ void VMEAnalyzer::InitLoop(){
     cout << "   raw" << endl;
   }
 
+  std::cout << "FINISHED DatAnalyzer INIT" << std::endl;
   if(pixel_input_file_path != ""){
     pixel_event = new FTBFPixelEvent;
     pixel_tree->SetBranchAddress("event", pixel_event);

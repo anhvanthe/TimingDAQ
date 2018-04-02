@@ -1,5 +1,5 @@
 #include "DatAnalyzer.hh"
-
+#include <assert.h>
 #define DEFAULT_FOR_EMPTY_CH 0
 #define THR_OVER_NOISE 3
 
@@ -7,8 +7,7 @@ using namespace std;
 
 DatAnalyzer::DatAnalyzer(int numChannels, int numTimes, int numSamples, int res, float scale) :
         NUM_CHANNELS(numChannels), NUM_TIMES(numTimes), NUM_SAMPLES(numSamples),
-        DAC_RESOLUTION(res), DAC_SCALE(scale),
-        file(0), tree(0) {
+        DAC_RESOLUTION(res), DAC_SCALE(scale), tree(0) {
 
     float* AUX_time = new float[numTimes*numSamples];
     float* AUX_channel = new float[numChannels*numSamples];
@@ -27,9 +26,12 @@ DatAnalyzer::DatAnalyzer(int numChannels, int numTimes, int numSamples, int res,
 
 DatAnalyzer::~DatAnalyzer() {
     cout << "In DatAnalyzer destructor" << endl;
-    if (file) {
+    /*if (file) {
         file->Close();
     }
+    */
+    //delete pixel_file;
+    //delete file;
 }
 
 TString DatAnalyzer::ParseCommandLine( int argc, char* argv[], TString opt )
@@ -128,13 +130,13 @@ void DatAnalyzer::GetCommandLineArgs(int argc, char **argv) {
 
 void DatAnalyzer::InitLoop() {
     cout << "Initializing infut file reader and output tree" << endl;
-    file = new TFile(output_file_path.Data(), "RECREATE");
+    //file = new TFile(output_file_path.Data(), "RECREATE");
     ifstream out_file(output_file_path.Data());
     if (!out_file){
       cerr << "[ERROR]: Cannot create output file: " << output_file_path.Data() << endl;
-      exit(0);
+      //exit(0);
     }
-    tree = new TTree("pulse", "Digitized waveforms");
+    //tree = new TTree("pulse", "Digitized waveforms");
 
     tree->Branch("i_evt", &i_evt, "i_evt/i");
 
@@ -186,7 +188,7 @@ void DatAnalyzer::InitLoop() {
     }
 
     for(unsigned int i = 0; i < NUM_CHANNELS; i++) ResetVar(i);
-
+    std::cout << "opening bin file" << std::endl;
     // Initialize the input file stream
     bin_file = fopen( input_file_path.Data(), "r" );
 }
@@ -669,7 +671,23 @@ void DatAnalyzer::RunEventsLoop() {
     }
 
     fclose(bin_file);
+    
+    //file->cd();
+    //tree->Print();
+    //tree->Write();
+    //file->Write();
+    //file->Close();
     cout << "\nProcessed total of " << N_written_evts << " events\n";
-
-    file->Write();
+    //delete pixel_tree;
+    cout << "\ndeleted pixel TTree " << N_written_evts << " events\n";
+    //delete pixel_file;
+    cout << "\ndeleted pixel file " << N_written_evts << " events\n";
+    //file->Print();
+    //tree->Write();
+    cout << "\n write file " << N_written_evts << " events\n";
+    //delete pixel_file;
+    //delete file;
+    cout << "\n file closed " << N_written_evts << " events\n";
+    //assert(false);
+    cout << "\n exit " << N_written_evts << " events\n";
 }
